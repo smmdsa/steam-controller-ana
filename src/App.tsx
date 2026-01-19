@@ -1,41 +1,68 @@
 import { useEffect, useRef } from 'react'
+import { useKV } from '@github/spark/hooks'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
 import * as d3 from 'd3'
+import { translations, type Language } from '@/lib/translations'
 
 function App() {
+  const [language, setLanguage] = useKV<Language>('app-language', 'es')
   const marketShareRef = useRef<SVGSVGElement>(null)
   const growthTrendRef = useRef<SVGSVGElement>(null)
   const genreUsageRef = useRef<SVGSVGElement>(null)
+  
+  const t = translations[language || 'es']
 
   useEffect(() => {
     if (marketShareRef.current) {
-      renderMarketShareChart(marketShareRef.current)
+      renderMarketShareChart(marketShareRef.current, t.marketShare.chartLabels)
     }
     if (growthTrendRef.current) {
-      renderGrowthTrendChart(growthTrendRef.current)
+      renderGrowthTrendChart(growthTrendRef.current, t.trend.chartLabel)
     }
     if (genreUsageRef.current) {
-      renderGenreUsageChart(genreUsageRef.current)
+      renderGenreUsageChart(genreUsageRef.current, t.genre.genres)
     }
-  }, [])
+  }, [language, t])
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border bg-gradient-to-b from-background via-card to-background">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 md:py-16">
+          <div className="flex justify-end mb-4">
+            <div className="flex gap-2">
+              <Button
+                variant={language === 'es' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setLanguage('es')}
+              >
+                ES
+              </Button>
+              <Button
+                variant={language === 'en' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setLanguage('en')}
+              >
+                EN
+              </Button>
+            </div>
+          </div>
+          
           <div className="text-center space-y-6">
             <Badge variant="outline" className="text-accent border-accent/30 bg-accent/10 px-4 py-2">
-              STEAM ANALYTICS REPORT
+              {t.header.badge}
             </Badge>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-              La Era del <span className="text-accent">Mando</span> en PC
+              {t.header.title.split(t.header.titleHighlight)[0]}
+              <span className="text-accent">{t.header.titleHighlight}</span>
+              {t.header.title.split(t.header.titleHighlight)[1]}
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              El PC gaming ya no es solo teclado y ratón. Analizamos cómo millones de usuarios de Steam están migrando hacia los gamepads, impulsados por las consolas portátiles y los juegos cross-platform.
+              {t.header.description}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
@@ -44,10 +71,10 @@ function App() {
                   <GamepadIcon />
                   <div className="font-mono text-5xl font-bold text-foreground">15%</div>
                   <div className="text-sm uppercase tracking-wider text-muted-foreground">
-                    De sesiones activas usan Mando
+                    {t.header.stat1Label}
                   </div>
                   <div className="text-xs text-muted-foreground/70">
-                    Un aumento del 300% desde 2018
+                    {t.header.stat1Detail}
                   </div>
                 </CardContent>
               </Card>
@@ -57,10 +84,10 @@ function App() {
                   <TrendingUpIcon />
                   <div className="font-mono text-5xl font-bold text-foreground">3.000M+</div>
                   <div className="text-sm uppercase tracking-wider text-muted-foreground">
-                    Sesiones de juego anuales
+                    {t.header.stat2Label}
                   </div>
                   <div className="text-xs text-muted-foreground/70">
-                    Con entrada de gamepad registrada
+                    {t.header.stat2Detail}
                   </div>
                 </CardContent>
               </Card>
@@ -70,10 +97,10 @@ function App() {
                   <ControllerIcon />
                   <div className="font-mono text-5xl font-bold text-foreground">~60%</div>
                   <div className="text-sm uppercase tracking-wider text-muted-foreground">
-                    Dominio de Xbox
+                    {t.header.stat3Label}
                   </div>
                   <div className="text-xs text-muted-foreground/70">
-                    El estándar de facto en PC (XInput)
+                    {t.header.stat3Detail}
                   </div>
                 </CardContent>
               </Card>
@@ -87,19 +114,17 @@ function App() {
           <div className="flex flex-col justify-center space-y-6">
             <div>
               <h2 className="text-3xl md:text-4xl font-semibold mb-4 border-l-4 border-accent pl-4">
-                La Guerra de los Controladores
+                {t.marketShare.title}
               </h2>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                Aunque la libertad de elección es el pilar del PC, existe un claro ganador. Los controladores estilo <strong className="text-foreground">Xbox</strong> dominan el ecosistema debido a su integración nativa con Windows (XInput). Sin embargo, los controladores de <strong className="text-foreground">PlayStation</strong> han visto un crecimiento masivo gracias a un mejor soporte de API en Steam Input y el lanzamiento de exclusivos de Sony en PC.
-              </p>
+              <p className="text-muted-foreground leading-relaxed mb-4" dangerouslySetInnerHTML={{ __html: t.marketShare.description }} />
             </div>
 
             <div className="space-y-3">
               <div className="flex items-center p-4 bg-card rounded-lg border border-border hover:border-accent/50 transition-colors">
                 <div className="w-3 h-3 rounded-full mr-4" style={{ backgroundColor: 'oklch(0.60 0.20 150)' }}></div>
                 <div className="flex-1">
-                  <div className="font-semibold">Xbox (Standard)</div>
-                  <div className="text-xs text-muted-foreground">Plug & Play nativo en la mayoría de juegos</div>
+                  <div className="font-semibold">{t.marketShare.xboxLabel}</div>
+                  <div className="text-xs text-muted-foreground">{t.marketShare.xboxDetail}</div>
                 </div>
                 <div className="font-mono font-bold text-xl" style={{ color: 'oklch(0.60 0.20 150)' }}>59%</div>
               </div>
@@ -107,8 +132,8 @@ function App() {
               <div className="flex items-center p-4 bg-card rounded-lg border border-border hover:border-accent/50 transition-colors">
                 <div className="w-3 h-3 rounded-full mr-4" style={{ backgroundColor: 'oklch(0.65 0.21 260)' }}></div>
                 <div className="flex-1">
-                  <div className="font-semibold">PlayStation (DualShock/Sense)</div>
-                  <div className="text-xs text-muted-foreground">Crecimiento rápido por ports de Sony</div>
+                  <div className="font-semibold">{t.marketShare.psLabel}</div>
+                  <div className="text-xs text-muted-foreground">{t.marketShare.psDetail}</div>
                 </div>
                 <div className="font-mono font-bold text-xl" style={{ color: 'oklch(0.65 0.21 260)' }}>26%</div>
               </div>
@@ -116,8 +141,8 @@ function App() {
               <div className="flex items-center p-4 bg-card rounded-lg border border-border hover:border-accent/50 transition-colors">
                 <div className="w-3 h-3 rounded-full mr-4" style={{ backgroundColor: 'oklch(0.70 0.22 350)' }}></div>
                 <div className="flex-1">
-                  <div className="font-semibold">Steam Deck / Otros</div>
-                  <div className="text-xs text-muted-foreground">Impulsado por el auge de handhelds</div>
+                  <div className="font-semibold">{t.marketShare.othersLabel}</div>
+                  <div className="text-xs text-muted-foreground">{t.marketShare.othersDetail}</div>
                 </div>
                 <div className="font-mono font-bold text-xl" style={{ color: 'oklch(0.70 0.22 350)' }}>10%</div>
               </div>
@@ -126,14 +151,14 @@ function App() {
 
           <Card className="glassmorphic border-border">
             <CardHeader>
-              <CardTitle className="text-xl text-center text-accent">Cuota de Mercado de Dispositivos</CardTitle>
+              <CardTitle className="text-xl text-center text-accent">{t.marketShare.chartTitle}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="w-full h-[350px] flex items-center justify-center">
                 <svg ref={marketShareRef} className="w-full h-full"></svg>
               </div>
               <p className="text-center text-xs text-muted-foreground mt-4 italic">
-                Datos basados en estadísticas públicas de Steam Input (Estimación 2024)
+                {t.marketShare.chartNote}
               </p>
             </CardContent>
           </Card>
@@ -147,15 +172,13 @@ function App() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-1 space-y-6">
                   <h2 className="text-3xl md:text-4xl font-semibold border-l-4 border-accent pl-4">
-                    Tendencia Histórica
+                    {t.trend.title}
                   </h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    La adopción no es lineal; es exponencial. En 2018, el uso del mando era una rareza reservada para juegos de deportes. Hoy, con la normalización de géneros como los <em>Souls-like</em> y la mejora de la capa de compatibilidad de Steam, las sesiones diarias se han disparado.
-                  </p>
+                  <p className="text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: t.trend.description }} />
                   <div className="bg-card/50 p-4 rounded-lg border border-border">
-                    <h4 className="font-semibold text-accent mb-2">Factor Clave: Steam Input</h4>
+                    <h4 className="font-semibold text-accent mb-2">{t.trend.keyFactorTitle}</h4>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      La tecnología de traducción de Steam permite usar cualquier mando (incluso de Switch) en juegos que solo soportan Xbox. Esto eliminó la barrera de entrada para millones de usuarios.
+                      {t.trend.keyFactorText}
                     </p>
                   </div>
                 </div>
@@ -172,30 +195,24 @@ function App() {
 
         <section className="space-y-8">
           <h2 className="text-3xl md:text-4xl font-semibold text-center mb-8">
-            <span className="text-accent">Análisis por Género:</span> ¿Dónde se juega con Mando?
+            <span className="text-accent">{t.genre.title}</span> {t.genre.subtitle}
           </h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-6 order-2 lg:order-1">
               <div className="bg-gradient-to-r from-card to-card/50 p-6 rounded-lg border-l-4" style={{ borderColor: 'oklch(0.60 0.20 150)' }}>
-                <h3 className="text-xl font-semibold mb-2">Territorio Absoluto</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Los juegos de <strong className="text-foreground">Deportes y Lucha</strong> son prácticamente injugables competitivamente sin un mando analógico. Aquí el uso roza el 99%.
-                </p>
+                <h3 className="text-xl font-semibold mb-2">{t.genre.absoluteTitle}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: t.genre.absoluteText }} />
               </div>
 
               <div className="bg-gradient-to-r from-card to-card/50 p-6 rounded-lg border-l-4" style={{ borderColor: 'oklch(0.75 0.19 30)' }}>
-                <h3 className="text-xl font-semibold mb-2">El Campo de Batalla Híbrido</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Los <strong className="text-foreground">RPG de Acción</strong> (como Elden Ring o The Witcher) muestran un equilibrio perfecto. Muchos jugadores de PC prefieren la ergonomía del mando para sesiones largas de aventura en tercera persona.
-                </p>
+                <h3 className="text-xl font-semibold mb-2">{t.genre.hybridTitle}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: t.genre.hybridText }} />
               </div>
 
               <div className="bg-gradient-to-r from-card to-card/50 p-6 rounded-lg border-l-4" style={{ borderColor: 'oklch(0.70 0.22 350)' }}>
-                <h3 className="text-xl font-semibold mb-2">La Resistencia del Ratón</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Los <strong className="text-foreground">RTS (Estrategia)</strong> y <strong className="text-foreground">FPS Competitivos</strong> (CS:GO, Valorant) siguen siendo bastiones del teclado y ratón debido a la precisión necesaria, aunque el "Aim Assist" está cambiando esto en títulos como CoD o Apex.
-                </p>
+                <h3 className="text-xl font-semibold mb-2">{t.genre.resistanceTitle}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: t.genre.resistanceText }} />
               </div>
             </div>
 
@@ -210,14 +227,14 @@ function App() {
         <Separator className="my-12" />
 
         <footer className="text-center space-y-6 py-8">
-          <h2 className="text-2xl md:text-3xl font-semibold">Conclusión</h2>
+          <h2 className="text-2xl md:text-3xl font-semibold">{t.footer.title}</h2>
           <p className="text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            El PC se ha transformado en una plataforma híbrida. Ya no es necesario sentarse en un escritorio para disfrutar de la biblioteca de Steam. Con más de 87 millones de usuarios usando mando al menos una vez, los desarrolladores ahora priorizan el soporte completo de controlador desde el día uno.
+            {t.footer.description}
           </p>
           <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground/70">
             <span>Steam Analytics Dashboard</span>
             <span>•</span>
-            <span>Fuente: Steam Community Updates & Developer Surveys</span>
+            <span>{t.footer.source}</span>
           </div>
         </footer>
       </main>
@@ -249,17 +266,19 @@ function ControllerIcon() {
   )
 }
 
-function renderMarketShareChart(svg: SVGSVGElement) {
+function renderMarketShareChart(svg: SVGSVGElement, labels: { xbox: string; playstation: string; switchPro: string; steamDeck: string; generic: string }) {
+  d3.select(svg).selectAll('*').remove()
+  
   const width = svg.clientWidth
   const height = svg.clientHeight
   const radius = Math.min(width, height) / 2 - 20
 
   const data = [
-    { label: 'Xbox', value: 59, color: 'oklch(0.60 0.20 150)' },
-    { label: 'PlayStation', value: 26, color: 'oklch(0.65 0.21 260)' },
-    { label: 'Switch Pro', value: 4, color: 'oklch(0.75 0.19 30)' },
-    { label: 'Steam Deck', value: 7, color: 'oklch(0.70 0.22 350)' },
-    { label: 'Genéricos', value: 4, color: 'oklch(0.55 0.18 120)' }
+    { label: labels.xbox, value: 59, color: 'oklch(0.60 0.20 150)' },
+    { label: labels.playstation, value: 26, color: 'oklch(0.65 0.21 260)' },
+    { label: labels.switchPro, value: 4, color: 'oklch(0.75 0.19 30)' },
+    { label: labels.steamDeck, value: 7, color: 'oklch(0.70 0.22 350)' },
+    { label: labels.generic, value: 4, color: 'oklch(0.55 0.18 120)' }
   ]
 
   const g = d3.select(svg)
@@ -306,7 +325,9 @@ function renderMarketShareChart(svg: SVGSVGElement) {
     .style('opacity', 1)
 }
 
-function renderGrowthTrendChart(svg: SVGSVGElement) {
+function renderGrowthTrendChart(svg: SVGSVGElement, yAxisLabel: string) {
+  d3.select(svg).selectAll('*').remove()
+  
   const margin = { top: 20, right: 30, bottom: 40, left: 60 }
   const width = svg.clientWidth - margin.left - margin.right
   const height = svg.clientHeight - margin.top - margin.bottom
@@ -352,7 +373,7 @@ function renderGrowthTrendChart(svg: SVGSVGElement) {
     .attr('text-anchor', 'middle')
     .attr('fill', 'oklch(0.65 0 0)')
     .attr('font-size', '12px')
-    .text('Millones de Sesiones')
+    .text(yAxisLabel)
 
   const line = d3.line<{ year: string; value: number }>()
     .x(d => (x(d.year) ?? 0) + x.bandwidth() / 2)
@@ -389,20 +410,22 @@ function renderGrowthTrendChart(svg: SVGSVGElement) {
     .attr('r', 5)
 }
 
-function renderGenreUsageChart(svg: SVGSVGElement) {
+function renderGenreUsageChart(svg: SVGSVGElement, genreLabels: { sports: string; fighting: string; souls: string; platformer: string; openWorld: string; mmorpg: string; fps: string; rts: string }) {
+  d3.select(svg).selectAll('*').remove()
+  
   const margin = { top: 20, right: 30, bottom: 40, left: 160 }
   const width = svg.clientWidth - margin.left - margin.right
   const height = svg.clientHeight - margin.top - margin.bottom
 
   const data = [
-    { genre: 'Deportes y Carreras', value: 92, color: 'oklch(0.60 0.20 150)' },
-    { genre: 'Juegos de Lucha', value: 89, color: 'oklch(0.60 0.20 150)' },
-    { genre: 'Soulslike / 3rd Person', value: 75, color: 'oklch(0.65 0.21 260)' },
-    { genre: 'Plataformeros', value: 70, color: 'oklch(0.65 0.21 260)' },
-    { genre: 'Mundo Abierto / Aventura', value: 55, color: 'oklch(0.75 0.19 30)' },
-    { genre: 'MMORPG', value: 30, color: 'oklch(0.75 0.19 30)' },
-    { genre: 'FPS (Shooters)', value: 15, color: 'oklch(0.70 0.22 350)' },
-    { genre: 'RTS / Estrategia', value: 2, color: 'oklch(0.70 0.22 350)' }
+    { genre: genreLabels.sports, value: 92, color: 'oklch(0.60 0.20 150)' },
+    { genre: genreLabels.fighting, value: 89, color: 'oklch(0.60 0.20 150)' },
+    { genre: genreLabels.souls, value: 75, color: 'oklch(0.65 0.21 260)' },
+    { genre: genreLabels.platformer, value: 70, color: 'oklch(0.65 0.21 260)' },
+    { genre: genreLabels.openWorld, value: 55, color: 'oklch(0.75 0.19 30)' },
+    { genre: genreLabels.mmorpg, value: 30, color: 'oklch(0.75 0.19 30)' },
+    { genre: genreLabels.fps, value: 15, color: 'oklch(0.70 0.22 350)' },
+    { genre: genreLabels.rts, value: 2, color: 'oklch(0.70 0.22 350)' }
   ]
 
   const g = d3.select(svg)

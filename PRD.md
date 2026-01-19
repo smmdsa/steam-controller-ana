@@ -33,6 +33,13 @@ This is an interactive data dashboard with multiple chart visualizations and no 
 - **Progression**: User views chart → Reads accompanying analysis → Understands implications → Moves to next section
 - **Success criteria**: Content is scannable, well-structured, and complements visualizations
 
+### Multi-Language Support
+- **Functionality**: Toggle between Spanish and English languages with persistent preference storage
+- **Purpose**: Make the dashboard accessible to both Spanish and English speaking audiences
+- **Trigger**: User clicks ES/EN language toggle buttons in header
+- **Progression**: User selects language → All text content updates → Charts re-render with translated labels → Preference saved for future visits
+- **Success criteria**: All content translates seamlessly, charts update labels correctly, language preference persists across sessions
+
 ## Edge Case Handling
 
 - **No Data Scenarios**: Charts gracefully handle empty datasets (though not applicable here with static data)
